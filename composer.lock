@@ -1,0 +1,55 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "3d7a2a70ed2c9fea4353f3d3dd1e2d2f",
+    "packages": [
+        {
+            "name": "mj-dymalla/iso3166",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MJDymalla/ISO3166-Library.git",
+                "reference": "7db0dcaf8b0477397e31b1c9cead12f4a5194271"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MJDymalla/ISO3166-Library/zipball/7db0dcaf8b0477397e31b1c9cead12f4a5194271",
+                "reference": "7db0dcaf8b0477397e31b1c9cead12f4a5194271",
+                "shasum": ""
+            },
+            "require-dev": {
+                "charles-rumley/php-po-to-json": "dev-master",
+                "guzzlehttp/guzzle": "^7.0",
+                "sepia/po-parser": "^4.2",
+                "symfony/symfony": "^5.1"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MJDymalla\\ISO3166Data\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "support": {
+                "issues": "https://github.com/MJDymalla/ISO3166-Library/issues",
+                "source": "https://github.com/MJDymalla/ISO3166-Library/tree/master"
+            },
+            "time": "2021-03-03T05:29:40+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "mj-dymalla/iso3166": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
+}

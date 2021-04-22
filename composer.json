@@ -1,0 +1,19 @@
+{
+    "name": "mjdymalla/iso3166-php",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Markus Dymalla",
+            "email": "markus.dymalla@gmail.com"
+        }
+    ],
+    "require": {
+        "mj-dymalla/iso3166": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "MJDymalla\\PHP\\": "src"
+        }
+    }
+}
