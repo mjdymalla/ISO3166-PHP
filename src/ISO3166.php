@@ -14,18 +14,40 @@ Class ISO3166
      *    [AU] => Australia
      * ]
      */
-    public function getCountryNames($locale)
+    public function getCountryNames($locales = [])
     {
-        $path = $basepath.'3166-1/'.$locale.'.json';
-        $countryNames = json_decode(file_get_contents($path), true);
+        if (!$locales || gettype($locales) !== 'array') {
+            return [];
+        }
 
-        return $countryNames;
+        $translations = [];
+
+        $metaDataPath = self::$basepath.'3166-1/meta.json';
+        $supportedCountries = array_keys(self::read($metaDataPath));
+
+        foreach ($locales as $locale) {
+            if (count($supportedCountries) <= count($translations)) {
+                break;
+            }
+
+            $path = self::$basepath.'3166-1/'.$locale.'.json';
+            $countryNames = self::read($path);
+
+            foreach ($countryNames as $A2 => $translation) {
+                if (!array_key_exists($A2, $translations)) {
+                    $translations[$A2] = $translation;
+                }
+            }
+        }
+
+        ksort($translations);
+        return $translations;
     }
 
     /**
      * Get all iso3166-1 supported Countries including meta data for provided locale
      * @param $locale - locale for country name translation
-     * @return array - associative array of objects hydrated with country meta data and translated name
+     * @return array - associative array of objects containing country meta data and translated name
      * [
      *    [AU] => Array
      *       (
@@ -36,19 +58,19 @@ Class ISO3166
      *       )
      * ]
      */
-    public function getCountries($locale)
+    public function getCountries($locales = [])
     {
-        $countries = [];
+        if (!$locales || gettype($locales) !== 'array') {
+            return [];
+        }
 
-        $metaDataPath = $basepath.'3166-1/meta.json';
-        $countryNamesPath = $basepath.'3166-1/'.$locale.'.json';
-        
-        $countries = json_decode(file_get_contents($metaDataPath), true);
-        $countryNames = json_decode(file_get_contents($countryNamesPath), true);
+        $metaDataPath = self::$basepath.'3166-1/meta.json';
+        $countries = self::read($metaDataPath);
+        $translations = self::getCountryNames($locales);
 
-        foreach ($countryNames as $A2 => $name) {
+        foreach ($translations as $A2 => $translation) {
             if (array_key_exists($A2, $countries)) {
-                $countries[$A2]['name'] = $name; 
+                $countries[$A2]['name'] = $translation;
             }
         }
 
@@ -59,48 +81,133 @@ Class ISO3166
      * @param $A2 - Two character alpha-2 code of Country (parent of requested subdivisions)
      * @param $locale - locale for sub division name translation
      * @return array - associative array of sub division names for provided country
+     * 
      * [
-     *    [AU-ACT] => Australian Capital Territory
+     *    [US-CA] => California
      * ]
      */
-    public function getSubDivisionNames($A2, $locale)
+    public function getSubDivisionNames($A2, $locales = [])
     {
-        $path = $basepath.'3166-2/'.$A2.'/'.$locale.'.json';
-        $decoded = json_decode(file_get_contents($path), true);
+        if (!$locales || gettype($locales) !== 'array') {
+            return [];
+        }
+        
+        $subDivisionNames = [];
 
-        return $decoded;
+        $metaDataPath = self::$basepath.'3166-2/'.$A2.'/meta.json';
+        $supportedSubDivisions = array_keys(self::read($metaDataPath));
+        
+        foreach ($locales as $locale) {
+            if (count($supportedSubDivisions) <= count($subDivisionNames)) {
+                break;
+            }
+
+            $path = self::$basepath.'3166-2/'.$A2.'/'.$locale.'.json';
+            $translations = self::read($path);
+            
+            foreach ($translations as $code => $translation) {
+                if (!array_key_exists($code, $subDivisionNames)) {
+                    $subDivisionNames[$code] = $translation;
+                }
+            }
+        }
+
+        ksort($subDivisionNames);
+        return $subDivisionNames;
     }
 
     /**
      * @param $A2 - Two character alpha-2 code of Country (parent of requested subdivisions)
      * @param $locale - locale for subdivision name translation
-     * @return array - associative array of objects hydrated with subdivision meta data and translated name
-     * e.g. mul_Latn
+     * @return array - associative array of a country's subdivisions meta data and translations
+     * 
      * [
-     *    [AU-QLD] => Array
+     *    [US-CA] => Array
      *       (
-     *          [code] => AU-QLD
+     *          [code] => US-CA
      *          [type] => State
-     *          [name] => Queensland
+     *          [name] => California
      *       )
      * ]
      */
-    public function getSubDivisions($A2, $locale)
+    public function getSubDivisions($A2, $locales = [])
     {
-        $subdivisions = [];
+        if (!$locales || gettype($locales) !== 'array') {
+            return [];
+        }
 
         $metaDataPath = self::$basepath.'3166-2/'.$A2.'/meta.json';
-        $subDivisionNamesPath = self::$basepath.'3166-2/'.$A2.'/'.$locale.'.json';
+        $subDivisions = self::read($metaDataPath);
 
-        $subDivisions = json_decode(file_get_contents($metaDataPath), true);
-        $subDivsionNames = json_decode(file_get_contents($subDivisionNamesPath), true);
+        foreach ($locales as $locale) {
+            if (self::translationsComplete($subDivisions)) {
+                return $subDivisions;
+            }
 
-        foreach ($subDivsionNames as $code => $name) {
-            if (array_key_exists($code, $subDivisions)) {
-                $subDivisions[$code]['name'] = $name;
+            $translationsPath = self::$basepath.'3166-2/'.$A2.'/'.$locale.'.json';
+            $translations = self::read($translationsPath);
+
+            foreach($translations as $code => $name) {
+                if (array_key_exists($code, $subDivisions) && !array_key_exists('name', $subDivisions[$code])) {
+                    $subDivisions[$code]['name'] = $name;
+                }
             }
         }
 
         return $subDivisions;
+    }
+
+    /**
+     * Get all supported locales for country data
+     * @return array - ordered array of all supported locales for country translations
+     */
+    public function getCountryLocales()
+    {
+        $path = self::$basepath.'/3166-1';
+        $dir = new \DirectoryIterator($path);
+
+        $locales = [];
+
+        foreach ($dir as $file) {
+            if ($file->isDot()) {
+                continue;
+            }
+
+            $locales[] = explode(".", $file->getFilename())[0];
+        }
+
+        sort($locales);
+        return $locales;
+    }
+
+    /**
+     * Check whether translations have been found for given subdivisions
+     * @return boolean - false if subdivision is found without a translation
+     */
+    private function translationsComplete($subdivisions)
+    {
+        foreach ($subdivisions as $A2 => $data) {
+            if (!array_key_exists('name', $data)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * File read function
+     * @return array - contents of file in array
+     */
+    private function read(string $path)
+    {
+        $json = file_get_contents($path);
+        $data = json_decode($json, true);
+
+        if (null === $data) {
+            return null;
+        }
+
+        return $data;
     }
 }
