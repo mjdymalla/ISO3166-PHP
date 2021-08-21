@@ -2,7 +2,7 @@
 
 namespace MJDymalla\PHP;
 
-Class ISO3166
+Class CountryData
 {
     private static string $basepath = '../vendor/mj-dymalla/iso3166/data/';
 
