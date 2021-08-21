@@ -16,8 +16,10 @@ All methods accept an array of locales which is used to fallback on, i.e. if pro
 
 #### Country names  
 ```
-$iso3166 = new ISO3166;
-$data = $iso3166->getCountryNames(['en']);
+use MJDymalla\PHP\CountryData;
+
+$countryData = new CountryData();
+$data = $countryData->getCountryNames(['en']);
 ```
 ```
 [
@@ -26,7 +28,7 @@ $data = $iso3166->getCountryNames(['en']);
 ```
 #### Country names including meta data
 ```
-$data = $iso3166->getCountries(['en']);
+$data = $countryData->getCountries(['en']);
 ```
 ```
 [
@@ -41,7 +43,7 @@ $data = $iso3166->getCountries(['en']);
 ```
 #### Subdivision names
 ```
-$data = $iso3166->getSubDivisionNames('US', ['mul_Latn']);
+$data = $countryData->getSubDivisionNames('US', ['mul_Latn']);
 ```
 ```
 [
@@ -52,7 +54,7 @@ $data = $iso3166->getSubDivisionNames('US', ['mul_Latn']);
 ```
 #### Subdivision names including meta data
 ```
-$data = $iso3166->getSubDivisions('US', ['ja']);
+$data = $countryData->getSubDivisions('US', ['ja']);
 ```
 ```
 [
